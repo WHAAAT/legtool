@@ -14,7 +14,8 @@
 
 '''Various geometry helper routines.'''
 
-from . import tf
+import tf
+
 
 def signed_poly_area(poly):
     '''Given a list of points which describe a polygon in 2D, return

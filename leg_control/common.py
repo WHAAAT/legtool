@@ -18,7 +18,7 @@ import copy
 import sys
 import traceback
 
-from ..tf import tf
+import tf
 
 # These are possible modes for each of the legs.
 

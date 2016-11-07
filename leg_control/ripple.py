@@ -15,15 +15,15 @@
 '''An implementation of a simple open loop ripple gait, with optional
 grouping of legs.'''
 
-import bisect
 import math
 
-from .common import (STANCE, SWING, UNKNOWN)
-from .common import (LegConfig, MechanicalConfig)
-from .common import (LegResult, Command, GaitGraphLeg, GaitGraph, LegState)
-from .common import (NotSupported, CommonState)
-from ..tf import geometry
-from ..tf import tf
+from common import (Command, GaitGraphLeg, GaitGraph, LegState)
+from common import (MechanicalConfig)
+from common import (NotSupported, CommonState)
+from common import (STANCE, SWING)
+import tf
+import geometry
+
 
 class RippleConfig(object):
     def __init__(self):
@@ -37,7 +37,7 @@ class RippleConfig(object):
         self.leg_order = []
         self.body_z_offset_mm = 0.0
         self.servo_speed_margin_percent = 70.0
-        self.statically_stable = False
+        self.statically_stable = True
         self.static_center_factor = 3.0
         self.static_stable_factor = 10.0
         self.static_margin_mm = 20.0
@@ -203,8 +203,8 @@ def _sign(val):
     return -1.0 if (val < 0.0) else 1.0
 
 class Options(object):
-    cycle_time_s = 0.0
-    servo_speed_dps = 0.0
+    cycle_time_s = 4.0
+    servo_speed_dps = 360.0
 
 def _iterate_legs(leg_group):
     """Given a leg group (either a scalar leg number, or a tuple of
@@ -263,7 +263,7 @@ class RippleGait(object):
         inconsistent with one another.  In this case, neither the
         state nor command are changed.
         '''
-
+        self.state
         old_state = self.state
         self.state = state.copy()
 
@@ -274,6 +274,7 @@ class RippleGait(object):
             if leg.mode == STANCE:
                 leg.point = self.state.world_frame.map_from_frame(
                     leg.frame, leg.point)
+
                 leg.frame = self.state.world_frame
             elif leg.mode == SWING:
                 leg.point = self.state.robot_frame.map_from_frame(
@@ -385,6 +386,7 @@ class RippleGait(object):
         return result
 
     def _do_commands_differ_body_only(self, command1, command2):
+
         return (command1.translate_x_mm_s == command2.translate_x_mm_s and
                 command1.translate_y_mm_s == command2.translate_y_mm_s and
                 command1.rotate_deg_s == command2.rotate_deg_s)
@@ -421,13 +423,17 @@ class RippleGait(object):
     def _apply_body_command(self, state, command):
         if not self.config.statically_stable:
             state.body_frame.transform.translation.x = command.body_x_mm
+            #print state.body_frame.transform.translation.x
             state.body_frame.transform.translation.y = command.body_y_mm
+            #print state.body_frame.transform.translation.z
         state.body_frame.transform.translation.z = (
             command.body_z_mm + self.config.body_z_offset_mm)
+        #print state.body_frame.transform.translation.z
         state.body_frame.transform.rotation = tf.Quaternion.from_euler(
             math.radians(command.body_roll_deg),
             math.radians(command.body_pitch_deg),
             math.radians(command.body_yaw_deg))
+        #print state.body_frame.transform.rotation
 
 
     def get_idle_state(self):

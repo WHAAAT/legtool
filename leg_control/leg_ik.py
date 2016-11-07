@@ -16,7 +16,7 @@
 
 import math
 
-from ..tf.tf import Point3D
+from tf import Point3D
 
 class Configuration(object):
     coxa_min_deg = None

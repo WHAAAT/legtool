@@ -19,7 +19,7 @@ frames, and converting between them.'''
 
 import math
 
-from .quaternion import Quaternion
+from quaternion import Quaternion
 
 class Point3D(object):
     '''A 3 dimensional point or vector.
